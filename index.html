@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeoGebra 3D Figure Viewer</title>
-    <!-- Use Tailwind from CDN which is allowed in the CSP -->
+    <!-- Most permissive CSP for GitHub Pages that should work with GeoGebra -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline'; frame-src 'self' https://www.geogebra.org;">
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -18,34 +20,17 @@
             }
         }
     </script>
-    <!-- Use GeoGebra API from JSDelivr which is allowed in the CSP -->
-    <script src="https://cdn.jsdelivr.net/npm/geogebra@5.0.617/deployggb.js"></script>
     <style>
-        #ggb-container {
+        .ggb-iframe {
             width: 100%;
             height: 600px;
             max-height: 80vh;
+            border: none;
         }
         @media (max-width: 640px) {
-            #ggb-container {
+            .ggb-iframe {
                 height: 450px;
             }
-        }
-        .loading-spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #5D5CDE;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            animation: spin 1s linear infinite;
-        }
-        .dark .loading-spinner {
-            border-color: rgba(255, 255, 255, 0.1);
-            border-left-color: #5D5CDE;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -55,28 +40,28 @@
         
         <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 mb-6">
             <p class="mb-2">GeoGebra Material: <span class="font-semibold">2425_Test13_Q1</span></p>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Material ID: m88rpvyg</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                Viewing from: 
+                <a href="https://www.geogebra.org/m/m88rpvyg" target="_blank" class="text-primary hover:underline">
+                    https://www.geogebra.org/m/m88rpvyg
+                </a>
+            </p>
         </div>
         
-        <div id="ggb-wrapper" class="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden mb-6 relative">
-            <!-- Loading indicator -->
-            <div id="loading" class="absolute inset-0 flex flex-col items-center justify-center bg-white dark:bg-gray-900 z-10">
-                <div class="loading-spinner mb-4"></div>
-                <p>Loading GeoGebra material...</p>
-            </div>
-            <!-- GeoGebra container -->
-            <div id="ggb-container"></div>
+        <div class="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden mb-6">
+            <!-- Direct iframe embed to GeoGebra -->
+            <iframe 
+                src="https://www.geogebra.org/material/iframe/id/m88rpvyg/width/1280/height/720/border/888888/sfsb/true/smb/false/stb/false/stbh/false/ai/false/asb/false/sri/true/rc/false/ld/false/sdz/true/ctl/false" 
+                class="ggb-iframe"
+                allowfullscreen
+                title="GeoGebra 3D Figure: 2425_Test13_Q1"
+                loading="lazy"
+            ></iframe>
         </div>
         
-        <div id="error-message" class="hidden bg-red-100 dark:bg-red-900 border-l-4 border-red-500 text-red-700 dark:text-red-300 p-4 mb-6">
-            <p class="font-bold">Error loading GeoGebra material</p>
-            <p id="error-details">There was an error loading the GeoGebra material. This might be due to Content Security Policy restrictions.</p>
-        </div>
-        
-        <div id="csp-info" class="bg-blue-100 dark:bg-blue-900 border-l-4 border-blue-500 text-blue-700 dark:text-blue-300 p-4 mb-6">
-            <p class="font-bold">GitHub Pages CSP Information</p>
-            <p class="mb-2">If you're hosting this on GitHub Pages and experiencing CSP issues, consider adding this meta tag to your HTML:</p>
-            <pre class="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs overflow-x-auto"><code>&lt;meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://www.geogebra.org; frame-src 'self' https://www.geogebra.org;"&gt;</code></pre>
+        <div class="bg-yellow-100 dark:bg-yellow-900 border-l-4 border-yellow-500 text-yellow-700 dark:text-yellow-300 p-4 mb-6">
+            <p class="font-bold">GitHub Pages Embed Note</p>
+            <p>If the GeoGebra content doesn't load, you may need to adjust your GitHub Pages settings or CSP configuration to allow embedding from geogebra.org.</p>
         </div>
         
         <div class="flex flex-wrap gap-2 justify-center">
@@ -102,78 +87,21 @@
             }
         });
         
-        // Load GeoGebra Applet
-        window.onload = function() {
-            const ggbContainer = document.getElementById('ggb-container');
-            const loadingElement = document.getElementById('loading');
-            const errorMessage = document.getElementById('error-message');
-            const errorDetails = document.getElementById('error-details');
-            
-            try {
-                // Check if GGBApplet is available
-                if (typeof GGBApplet === 'function') {
-                    // Material ID from the GeoGebra URL
-                    const materialId = "m88rpvyg";
-                    
-                    // Configure the applet parameters
-                    const params = {
-                        "material_id": materialId,
-                        "appName": "3d",
-                        "width": ggbContainer.offsetWidth,
-                        "height": ggbContainer.offsetHeight,
-                        "showToolBar": false,
-                        "showAlgebraInput": false,
-                        "showMenuBar": false,
-                        "allowStyleBar": false,
-                        "useBrowserForJS": true,
-                        "enableRightClick": true,
-                        "enableShiftDragZoom": true,
-                        "showResetIcon": true,
-                        "preventFocus": false,
-                        "errorDialogsActive": false,
-                        "showLogging": false
-                    };
-                    
-                    // Initialize the applet
-                    const applet = new GGBApplet(params, true);
-                    
-                    // Define callback function for when applet is loaded
-                    window.ggbOnInit = function() {
-                        // Hide loading indicator when done
-                        loadingElement.style.display = 'none';
-                        console.log("GeoGebra applet initialized");
-                    };
-                    
-                    // Set an error handling function
-                    window.ggbOnError = function(e) {
-                        loadingElement.style.display = 'none';
-                        errorMessage.classList.remove('hidden');
-                        errorDetails.textContent = "GeoGebra error: " + (e ? e.toString() : "Unknown error");
-                        console.error("GeoGebra error:", e);
-                    };
-                    
-                    // Inject the applet into the container
-                    applet.inject("ggb-container");
-                    
-                    // Set a timeout to check if the applet is taking too long to load
-                    setTimeout(function() {
-                        if (loadingElement.style.display !== 'none') {
-                            // Try to check if there are CSP-related errors in the console
-                            errorMessage.classList.remove('hidden');
-                            errorDetails.innerHTML = "Loading is taking longer than expected. This may be due to Content Security Policy (CSP) restrictions. <br><br>Try viewing the original material at: <a href='https://www.geogebra.org/m/m88rpvyg' target='_blank' class='text-blue-500 hover:underline'>https://www.geogebra.org/m/m88rpvyg</a>";
-                        }
-                    }, 10000);
-                } else {
-                    // GGBApplet is not available
-                    throw new Error("GeoGebra API not loaded");
-                }
-            } catch (error) {
-                console.error("Error initializing GeoGebra:", error);
-                loadingElement.style.display = 'none';
-                errorMessage.classList.remove('hidden');
-                errorDetails.textContent = "Error initializing GeoGebra: " + error.message;
-            }
-        };
+        // Add event listener to detect iframe loading issues
+        document.querySelector('.ggb-iframe').addEventListener('error', function() {
+            this.style.display = 'none';
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'p-8 text-center text-red-600 dark:text-red-400';
+            errorDiv.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <p class="font-bold text-lg mb-2">GeoGebra Content Could Not Be Loaded</p>
+                <p>This may be due to Content Security Policy restrictions on GitHub Pages.</p>
+                <a href="https://www.geogebra.org/m/m88rpvyg" target="_blank" class="text-primary hover:underline mt-4 inline-block">View directly on GeoGebra</a>
+            `;
+            this.parentNode.appendChild(errorDiv);
+        });
     </script>
 </body>
 </html>
