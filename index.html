@@ -37,7 +37,7 @@
         <h1 class="text-2xl font-bold text-center mb-4">GeoGebra 3D Figure Viewer</h1>
         
         <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 mb-6">
-            <p class="mb-2">Current file: <span class="font-semibold">2425_Test13_Q1.ggb</span></p>
+            <p class="mb-2">GeoGebra Material: <span class="font-semibold">2425_Test13_Q1</span></p>
             <div id="fileInfo" class="text-sm text-gray-600 dark:text-gray-400"></div>
         </div>
         
@@ -122,8 +122,9 @@
         }
         
         function initGeoGebra() {
-            const fileName = "2425_Test13_Q1.ggb";
-            fileInfoElement.textContent = "Note: This viewer attempts to load GeoGebra files from the default GeoGebra material platform.";
+            // Use only the material ID from the URL
+            const materialId = "m88rpvyg";
+            fileInfoElement.textContent = "Loading from: https://www.geogebra.org/m/m88rpvyg";
             
             const params = {
                 "appName": "3d",
@@ -138,7 +139,7 @@
                 "showResetIcon": false,
                 "scaleContainerClass": "ggb-container",
                 "autoHeight": true,
-                "material_id": fileName,
+                "material_id": materialId,
                 "errorDialogsActive": false
             };
             
@@ -147,7 +148,7 @@
                     const applet = new GGBApplet(params, true);
                     applet.inject("ggbApplet", "preferHTML5");
                     
-                    window.onGGBReady = function() {
+                    window.ggbOnInit = function() {
                         ggbApp = document.ggbApplet;
                         loadingElement.style.display = 'none';
                         buttons.forEach(button => button.disabled = false);
